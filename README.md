@@ -3,7 +3,7 @@
 🚀 **Imagin** is a modern, fast, and minimal AI chat application built to deliver a clean, focused, and responsive conversational experience.  
 It combines disciplined UI/UX design with a powerful Groq-powered backend to create an AI assistant that feels smooth, clear, and professional.
 
-![Imagin Screenshot](./assets/screenshot.png)
+![Imagin Screenshot](./public/assets/screenshot.png)
 
 ---
 
