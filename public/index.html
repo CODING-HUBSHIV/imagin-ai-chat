@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Imagin - AI Assistant</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries,typography"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#000000",
+                    "charcoal": "#1a1a1a",
+                },
+                fontFamily: {
+                    "display": ["Space Grotesk", "sans-serif"]
+                },
+                borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+            },
+        },
+    }
+</script>
+<style type="text/tailwindcss">
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    body {
+        background-color: #ffffff;
+    }
+    .typing-dot {
+        animation: typing 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes typing {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body class="font-display bg-white text-black h-screen overflow-hidden flex flex-col">
+<main class="relative flex h-full w-full flex-col overflow-hidden bg-white">
+<header class="flex w-full items-center justify-between px-8 py-6 shrink-0 z-10 bg-white">
+<div class="flex items-center gap-3">
+    <!-- Logo loading from assets -->
+    <img src="assets/logo.svg" alt="Imagin" class="size-10 rounded-xl bg-black object-contain p-2" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiIGZpbGw9IndoaXRlIj48cGF0aCBkPSJNMjQwLTQwcS0zMyAwLTU2LjUtMjMuNVQxNjAtMTIwdi00NDBxMC0zMyAyMy41LTU2LjVUMjQwLTY0MGg1MjB2LTgwaC04MHEtMzMgMC01Ni41LTIzLjVUNjAwLTgwMHEwLTMzIDIzLjUtNTYuNVQ2ODAtODgwcTMzIDAgNTYuNSAyMy41VDc2MC04MDB2ODBIMjQwdjQ0MGgyNDB2ODBIMjQwbTUyMC00MGg4MHYtMjAwaC04MHYyMDBtLTQ4MCAwSDgwaC04MHYtMjAwaDh2MjAwbTgwIDBIMjQwdi04MGgyNDB2ODB6Ii8+PC9zdmc+'">
+    <span class="text-xl font-bold tracking-tight text-black">Imagin</span>
+</div>
+<!-- New Chat Button (Moved to Header since settings is gone) -->
+<button id="reset-chat-header-btn" class="p-2 rounded-full hover:bg-slate-100 transition-colors text-charcoal" title="New Chat">
+    <span class="material-symbols-outlined text-[24px]">add_comment</span>
+</button>
+</header>
+
+<!-- Chat Container (Initially hidden) -->
+<div id="chat-container" class="flex-1 flex flex-col w-full max-w-3xl mx-auto px-4 overflow-y-auto no-scrollbar hidden pb-4">
+    <!-- Messages will appear here -->
+</div>
+
+<!-- Hero Section (Initially visible) -->
+<div id="hero-section" class="flex-1 flex flex-col items-center justify-center px-6 text-center">
+<div class="max-w-2xl">
+<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-black mb-6">
+                How can I help you today?
+            </h1>
+<p class="text-lg text-charcoal font-medium max-w-lg mx-auto leading-relaxed">
+                Start a conversation...
+            </p>
+</div>
+</div>
+
+<div class="w-full px-4 pb-12 pt-4 md:px-8 lg:px-12 shrink-0 bg-white">
+<div class="mx-auto flex w-full max-w-3xl flex-col">
+<div class="group relative flex w-full items-center rounded-full bg-white p-2 shadow-[0_8px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-[0_15px_60px_-15px_rgba(0,0,0,0.12)] transition-all duration-500 ease-out transform focus-within:-translate-y-1">
+<div class="flex w-full flex-1 items-center gap-4 pl-6 pr-1">
+<span class="material-symbols-outlined text-slate-400">auto_awesome</span>
+<input id="message-input" class="w-full border-0 bg-transparent py-5 text-lg text-black placeholder:text-slate-400 focus:ring-0 outline-none" placeholder="Message Imagin..." type="text" autocomplete="off"/>
+<button id="send-button" class="flex size-14 shrink-0 items-center justify-center rounded-full bg-black text-white transition-all hover:bg-charcoal active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined text-[24px]">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<script>
+    // --- CONFIGURATION ---
+    // IMPORTANT: Replace 'YOUR_API_KEY_HERE' with your actual Groq API Key
+    const GROQ_API_KEY = "YOUR_API_KEY_HERE"; 
+    const GROQ_MODEL = "llama-3.3-70b-versatile";
+    // ---------------------
+
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const heroSection = document.getElementById('hero-section');
+    const chatContainer = document.getElementById('chat-container');
+    const resetChatHeaderBtn = document.getElementById('reset-chat-header-btn');
+
+    // State
+    let conversationHistory = [];
+    const SYSTEM_PROMPT = "You are Imagin, a helpful, minimal, and precise AI assistant. You answer concisely and clearly. Use markdown for formatting.";
+
+    function createMessageElement(text, isUser) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-6 animate-[fadeIn_0.3s_ease-out] group`;
+        
+        const contentContainer = document.createElement('div');
+        contentContainer.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} max-w-[85%] sm:max-w-[75%]`;
+
+        const bubble = document.createElement('div');
+        bubble.className = `w-full rounded-2xl px-6 py-4 text-lg leading-relaxed shadow-sm transition-all prose ${
+            isUser 
+            ? 'bg-black text-white rounded-tr-sm prose-invert' 
+            : 'bg-slate-100 text-black rounded-tl-sm prose-neutral'
+        } max-w-none break-words`;
+        
+        // Store text in dataset for easy retrieval
+        bubble.dataset.originalText = text;
+        bubble.innerHTML = marked.parse(text);
+        
+        // Action Bar
+        const actionBar = document.createElement('div');
+        actionBar.className = `flex items-center gap-1 mt-1.5 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isUser ? 'justify-end' : 'justify-start'}`;
+        
+        // Copy Button
+        const copyBtn = document.createElement('button');
+        copyBtn.className = "p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-full transition-colors";
+        copyBtn.title = "Copy text";
+        copyBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">content_copy</span>';
+        copyBtn.onclick = () => copyToClipboard(bubble.dataset.originalText, copyBtn);
+        
+        actionBar.appendChild(copyBtn);
+
+        // Edit Button (User only)
+        if (isUser) {
+            const editBtn = document.createElement('button');
+            editBtn.className = "p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-full transition-colors";
+            editBtn.title = "Edit message";
+            editBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">edit</span>';
+            editBtn.onclick = () => enableEditMode(bubble, actionBar);
+            actionBar.insertBefore(editBtn, copyBtn);
+        }
+
+        contentContainer.appendChild(bubble);
+        contentContainer.appendChild(actionBar);
+        wrapper.appendChild(contentContainer);
+        return wrapper;
+    }
+
+    function enableEditMode(bubble, actionBar) {
+        const currentText = bubble.dataset.originalText;
+        actionBar.classList.add('hidden'); 
+
+        bubble.innerHTML = '';
+        
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'flex flex-col gap-3 w-full';
+        
+        const textarea = document.createElement('textarea');
+        textarea.className = 'w-full bg-transparent border-0 p-0 text-white focus:ring-0 resize-none overflow-hidden leading-relaxed';
+        textarea.value = currentText;
+        textarea.rows = 1;
+        // Auto-expand
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+        textarea.oninput = function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        };
+
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'flex justify-end gap-2';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'text-sm px-3 py-1.5 rounded-full text-slate-300 hover:text-white hover:bg-charcoal transition-colors';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = () => {
+            bubble.innerHTML = marked.parse(currentText);
+            actionBar.classList.remove('hidden');
+        };
+
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'text-sm px-4 py-1.5 rounded-full bg-white text-black font-medium hover:bg-slate-200 transition-colors';
+        saveBtn.textContent = 'Save';
+        saveBtn.onclick = () => {
+            const newText = textarea.value.trim();
+            if (newText) {
+                bubble.dataset.originalText = newText;
+                bubble.innerHTML = marked.parse(newText);
+            } else {
+                bubble.innerHTML = marked.parse(currentText);
+            }
+            actionBar.classList.remove('hidden');
+        };
+
+        buttonGroup.appendChild(cancelBtn);
+        buttonGroup.appendChild(saveBtn);
+        
+        inputContainer.appendChild(textarea);
+        inputContainer.appendChild(buttonGroup);
+        bubble.appendChild(inputContainer);
+        
+        textarea.focus();
+    }
+
+    async function copyToClipboard(text, btn) {
+        try {
+            await navigator.clipboard.writeText(text);
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span>';
+            btn.classList.add('text-green-600');
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+                btn.classList.remove('text-green-600');
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    }
+
+    function createTypingIndicator() {
+        const wrapper = document.createElement('div');
+        wrapper.className = `flex w-full justify-start mb-6 animate-[fadeIn_0.3s_ease-out]`;
+        wrapper.id = 'typing-indicator';
+        
+        const bubble = document.createElement('div');
+        bubble.className = `bg-slate-100 rounded-2xl rounded-tl-sm px-6 py-5 flex gap-1.5 items-center shadow-sm`;
+        
+        for(let i=0; i<3; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'w-2 h-2 bg-slate-400 rounded-full typing-dot';
+            bubble.appendChild(dot);
+        }
+        
+        wrapper.appendChild(bubble);
+        return wrapper;
+    }
+
+    function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Reset Chat Logic (Moved from Settings)
+    resetChatHeaderBtn.addEventListener('click', () => {
+        if(conversationHistory.length > 0) {
+             if(confirm('Start a new chat?')) {
+                conversationHistory = [];
+                chatContainer.innerHTML = '';
+                chatContainer.classList.add('hidden');
+                heroSection.classList.remove('hidden');
+                messageInput.value = '';
+                messageInput.focus();
+            }
+        }
+    });
+
+    // API Logic
+    async function fetchGroqResponse(messages) {
+        // Warning if no key is set
+        if (!GROQ_API_KEY || GROQ_API_KEY === "YOUR_API_KEY_HERE") {
+            return "Configuration Error: Please open the index.html file and set your `GROQ_API_KEY` in the script section.";
+        }
+
+        try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${GROQ_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messages: [
+                        { role: "system", content: SYSTEM_PROMPT },
+                        ...messages
+                    ],
+                    model: GROQ_MODEL,
+                    temperature: 0.7,
+                    max_tokens: 1024,
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API Error:', errorData);
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        } catch (error) {
+            return `Error: ${error.message}. Please check your connection and API Key.`;
+        }
+    }
+
+    async function handleSend() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        // UI Updates
+        if (!heroSection.classList.contains('hidden')) {
+            heroSection.classList.add('hidden');
+            chatContainer.classList.remove('hidden');
+        }
+
+        // Add User Message
+        chatContainer.appendChild(createMessageElement(text, true));
+        messageInput.value = '';
+        scrollToBottom();
+
+        // Add to history
+        conversationHistory.push({ role: "user", content: text });
+
+        // Show Typing Indicator
+        const typing = createTypingIndicator();
+        chatContainer.appendChild(typing);
+        scrollToBottom();
+
+        // Fetch Response
+        const responseText = await fetchGroqResponse(conversationHistory);
+
+        // Remove Typing Indicator
+        if(chatContainer.contains(typing)) {
+            chatContainer.removeChild(typing);
+        }
+        
+        // Add AI Message
+        chatContainer.appendChild(createMessageElement(responseText, false));
+        scrollToBottom();
+
+        // Add to history
+        conversationHistory.push({ role: "assistant", content: responseText });
+    }
+
+    sendButton.addEventListener('click', handleSend);
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            handleSend();
+        }
+    });
+    
+    // Auto-focus on load
+    window.onload = () => {
+        messageInput.focus();
+    };
+</script>
+</body>
+</html>
